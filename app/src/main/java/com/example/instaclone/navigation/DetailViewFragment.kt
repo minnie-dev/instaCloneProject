@@ -11,7 +11,6 @@ import com.example.instaclone.navigation.adapter.DetailViewRecyclerViewAdapter
 import com.example.instaclone.navigation.util.Constants.Companion.firebaseAuth
 
 class DetailViewFragment : Fragment() {
-    var uid: String? = null
     private lateinit var binding: FragmentDetailBinding
 
     override fun onCreateView(
@@ -19,9 +18,8 @@ class DetailViewFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentDetailBinding.inflate(inflater, container, false)
+        binding = DataB//FragmentDetailBinding.inflate(inflater, container, false)
 
-        uid = firebaseAuth.currentUser!!.uid
         binding.detailviewfragmentRecyclerview.adapter =
             DetailViewRecyclerViewAdapter(requireActivity())
         binding.detailviewfragmentRecyclerview.layoutManager = LinearLayoutManager(activity)

@@ -194,6 +194,7 @@ class DetailViewRecyclerViewAdapter(context: Context) :
     private fun favoriteEvent(position: Int) {
         val tsDoc = firebaseFirestore.collection("images")
             .document(contentUIDList[position]) // images collection에서 원하는 uid의 document에 대한 정보
+
         // 데이터를 저장하기 위해 transaction 사용
         firebaseFirestore.runTransaction { transaction ->
             uid = firebaseAuth.currentUser!!.uid // uid 값 가져옴
@@ -201,29 +202,30 @@ class DetailViewRecyclerViewAdapter(context: Context) :
             val contentDTO = transaction.get(tsDoc) // 해당 document 받아오기
                 .toObject(ContentDTO::class.java)//트랜젝션의 데이터를 ContentDTO로 캐스팅
 
-            if (contentDTO!!.favorites.containsKey(uid)) { //좋아요 버튼이 이미 클릭 되어있으면 -> favorites 값이 true이면
-                //When the button is clicked
-                contentDTO.favoriteCount = contentDTO.favoriteCount - 1
-                contentDTO.favorites.remove(uid);
-            } else {
-                //When the button is not clicked
-                contentDTO.favoriteCount = contentDTO.favoriteCount + 1
-                contentDTO.favorites[uid] = true
-                favoriteAlarm(contentDTOs[position].uid) // 카운트 올라감
+            contentDTO?.let {
+                if(it.favorites.containsKey(uid)){ // 이미 좋아요를 눌렀을 경욱 -> 좋아요 취소
+                    it.favoriteCount -= 1
+                    it.favorites.remove(uid)
+                } else {
+                    it.favoriteCount += 1
+                    it.favorites[uid] = true
+                    favoriteAlarm(contentDTOs[position].uid) // 카운트 올라감
+                }
+                transaction.set(tsDoc, it) // 해당 document에 Dto 객체 저장 , 트랜젝션을 다시 서버로 돌려줌
             }
-            transaction.set(tsDoc, contentDTO) // 해당 document에 Dto 객체 저장 , 트랜젝션을 다시 서버로 돌려줌
-            //notifyItemChanged(position)
         }
     }
 
     private fun favoriteAlarm(destinationUid: String) {
-        val alarmDTO = AlarmDTO()
-        alarmDTO.destinationUid = destinationUid
-        alarmDTO.userId = firebaseAuth.currentUser!!.email!!
-        alarmDTO.uid = firebaseAuth.currentUser!!.uid
-        alarmDTO.kind = 0
-        alarmDTO.timestamp = System.currentTimeMillis()
-        FirebaseFirestore.getInstance().collection("alarms").document().set(alarmDTO)
+        AlarmDTO().apply {
+            this.destinationUid = destinationUid
+            userId = firebaseAuth.currentUser!!.email!!
+            uid = firebaseAuth.currentUser!!.uid
+            kind = 0
+            timestamp = System.currentTimeMillis()
+            FirebaseFirestore.getInstance().collection("alarms").document().set(this)
+        }
+
 
         val message =
             firebaseAuth.currentUser!!.email + context.resources.getString(R.string.alarm_favorite)
