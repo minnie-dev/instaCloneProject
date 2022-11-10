@@ -7,10 +7,14 @@ import com.example.instaclone.navigation.model.FollowDTO
 import com.example.instaclone.navigation.util.Constants
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-
-class DetailViewModel : ViewModel() {
-    private var contentDTOList = MutableLiveData<List<DocumentSnapshot>>()
+@HiltViewModel
+class DetailViewModel
+    @Inject constructor()
+    : ViewModel() {
+    public var contentDTOList = MutableLiveData<List<DocumentSnapshot>>()
 
     fun getContentDTOList() {
         val uid = Constants.firebaseAuth.currentUser!!.uid
