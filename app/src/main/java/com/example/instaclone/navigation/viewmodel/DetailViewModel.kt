@@ -2,7 +2,6 @@ package com.example.instaclone.navigation.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.instaclone.navigation.model.ContentDTO
 import com.example.instaclone.navigation.model.FollowDTO
 import com.example.instaclone.navigation.util.Constants
 import com.google.firebase.firestore.DocumentSnapshot
@@ -12,13 +11,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailViewModel
-    @Inject constructor()
-    : ViewModel() {
-    public var contentDTOList = MutableLiveData<List<DocumentSnapshot>>()
+@Inject constructor() : ViewModel() {
+    var contentDTOList = MutableLiveData<List<DocumentSnapshot>>()
 
     fun getContentDTOList() {
         val uid = Constants.firebaseAuth.currentUser!!.uid
-        Constants.firebaseFirestore.collection("user")
+        Constants.firebaseFirestore.collection("users")
             .document(uid)
             .get()
             .addOnCompleteListener {

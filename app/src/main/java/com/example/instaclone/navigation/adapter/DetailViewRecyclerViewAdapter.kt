@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -19,13 +18,11 @@ import com.example.instaclone.navigation.CommentActivity
 import com.example.instaclone.navigation.UserFragment
 import com.example.instaclone.navigation.model.AlarmDTO
 import com.example.instaclone.navigation.model.ContentDTO
-import com.example.instaclone.navigation.model.FollowDTO
 import com.example.instaclone.navigation.util.Constants.Companion.DESTINATION_UID
 import com.example.instaclone.navigation.util.Constants.Companion.firebaseAuth
 import com.example.instaclone.navigation.util.Constants.Companion.firebaseFirestore
 import com.example.instaclone.navigation.util.FcmPush
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 
 
 /**
@@ -33,8 +30,11 @@ import com.google.firebase.firestore.Query
  */
 
 @SuppressLint("NotifyDataSetChanged")
-class DetailViewRecyclerViewAdapter(context: Context) :
-    RecyclerView.Adapter<DetailViewRecyclerViewAdapter.CustomViewHolder>() {
+class DetailViewRecyclerViewAdapter(
+    context: Context,
+    contentDTOs: List<ContentDTO>,
+    contentUIDList: List<String>
+) : RecyclerView.Adapter<DetailViewRecyclerViewAdapter.CustomViewHolder>() {
     private var contentDTOs: ArrayList<ContentDTO> = arrayListOf() // 업로드 내용
     private var contentUIDList: ArrayList<String> = arrayListOf() // 사용자 정보 List
     var uid: String
@@ -44,30 +44,8 @@ class DetailViewRecyclerViewAdapter(context: Context) :
     init {
         uid = firebaseAuth.currentUser!!.uid
         this.context = context
-        firebaseFirestore.collection("users")
-            .document(uid)
-            .get()
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    val userDTO = it.result.toObject(FollowDTO::class.java)
-                    if (userDTO?.followings != null) {
-                        firebaseFirestore
-                            .collection("images")
-                            .orderBy("timestamp", Query.Direction.DESCENDING)
-                            .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                                contentDTOs.clear()
-                                contentUIDList.clear()
-                                if (querySnapshot == null) return@addSnapshotListener
-                                for (snapshot in querySnapshot.documents) {
-                                    val item = snapshot.toObject(ContentDTO::class.java)
-                                    contentDTOs.add(item!!)
-                                    contentUIDList.add(snapshot.id)
-                                }
-                                notifyDataSetChanged()
-                            }
-                    }
-                }
-            }
+        this.contentDTOs = contentDTOs as ArrayList<ContentDTO>
+        this.contentUIDList = contentUIDList as ArrayList<String>
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
@@ -75,8 +53,65 @@ class DetailViewRecyclerViewAdapter(context: Context) :
         return CustomViewHolder(binding)
     }
 
+
+    override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
+        holder.bind()
+    }
+
+    override fun getItemCount(): Int {
+        return contentDTOs.size
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
+
+    /**
+     * 좋아요 시 실행할 이벤트
+     */
+    private fun favoriteEvent(position: Int) {
+        val tsDoc = firebaseFirestore.collection("images")
+            .document(contentUIDList[position]) // images collection에서 원하는 uid의 document에 대한 정보
+
+        // 데이터를 저장하기 위해 transaction 사용
+        firebaseFirestore.runTransaction { transaction ->
+            uid = firebaseAuth.currentUser!!.uid // uid 값 가져옴
+
+            val contentDTO = transaction.get(tsDoc) // 해당 document 받아오기
+                .toObject(ContentDTO::class.java)//트랜젝션의 데이터를 ContentDTO로 캐스팅
+
+            contentDTO?.let {
+                if (it.favorites.containsKey(uid)) { // 이미 좋아요를 눌렀을 경욱 -> 좋아요 취소
+                    it.favoriteCount -= 1
+                    it.favorites.remove(uid)
+                } else {
+                    it.favoriteCount += 1
+                    it.favorites[uid] = true
+                    favoriteAlarm(contentDTOs[position].uid) // 카운트 올라감
+                }
+                transaction.set(tsDoc, it) // 해당 document에 Dto 객체 저장 , 트랜젝션을 다시 서버로 돌려줌
+            }
+        }
+    }
+
+    private fun favoriteAlarm(destinationUid: String) {
+        AlarmDTO().apply {
+            this.destinationUid = destinationUid
+            userId = firebaseAuth.currentUser!!.email!!
+            uid = firebaseAuth.currentUser!!.uid
+            kind = 0
+            timestamp = System.currentTimeMillis()
+            FirebaseFirestore.getInstance().collection("alarms").document().set(this)
+        }
+
+        val message =
+            firebaseAuth.currentUser!!.email + context.resources.getString(R.string.alarm_favorite)
+        FcmPush.instance.sendMessage(destinationUid, "InstaClone", message)
+    }
+
     inner class CustomViewHolder(private val binding: ItemDetailBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
         fun bind() {
             val position = adapterPosition
             //프로파일 이미지 클릭하면 상대방 유저 정보로 이동
@@ -176,59 +211,4 @@ class DetailViewRecyclerViewAdapter(context: Context) :
         }
     }
 
-    override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
-        holder.bind()
-    }
-
-    override fun getItemCount(): Int {
-        return contentDTOs.size
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return position
-    }
-
-    /**
-     * 좋아요 시 실행할 이벤트
-     */
-    private fun favoriteEvent(position: Int) {
-        val tsDoc = firebaseFirestore.collection("images")
-            .document(contentUIDList[position]) // images collection에서 원하는 uid의 document에 대한 정보
-
-        // 데이터를 저장하기 위해 transaction 사용
-        firebaseFirestore.runTransaction { transaction ->
-            uid = firebaseAuth.currentUser!!.uid // uid 값 가져옴
-
-            val contentDTO = transaction.get(tsDoc) // 해당 document 받아오기
-                .toObject(ContentDTO::class.java)//트랜젝션의 데이터를 ContentDTO로 캐스팅
-
-            contentDTO?.let {
-                if(it.favorites.containsKey(uid)){ // 이미 좋아요를 눌렀을 경욱 -> 좋아요 취소
-                    it.favoriteCount -= 1
-                    it.favorites.remove(uid)
-                } else {
-                    it.favoriteCount += 1
-                    it.favorites[uid] = true
-                    favoriteAlarm(contentDTOs[position].uid) // 카운트 올라감
-                }
-                transaction.set(tsDoc, it) // 해당 document에 Dto 객체 저장 , 트랜젝션을 다시 서버로 돌려줌
-            }
-        }
-    }
-
-    private fun favoriteAlarm(destinationUid: String) {
-        AlarmDTO().apply {
-            this.destinationUid = destinationUid
-            userId = firebaseAuth.currentUser!!.email!!
-            uid = firebaseAuth.currentUser!!.uid
-            kind = 0
-            timestamp = System.currentTimeMillis()
-            FirebaseFirestore.getInstance().collection("alarms").document().set(this)
-        }
-
-
-        val message =
-            firebaseAuth.currentUser!!.email + context.resources.getString(R.string.alarm_favorite)
-        FcmPush.instance.sendMessage(destinationUid, "InstaClone", message)
-    }
 }

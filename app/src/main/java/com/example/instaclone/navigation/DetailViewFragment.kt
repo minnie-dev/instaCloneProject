@@ -1,6 +1,7 @@
 package com.example.instaclone.navigation
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class DetailViewFragment : Fragment() {
+
     private lateinit var binding: FragmentDetailBinding
     private var uid = ""
     private val vm: DetailViewModel by viewModels()
@@ -39,14 +41,21 @@ class DetailViewFragment : Fragment() {
 
         uid = firebaseAuth.currentUser!!.uid
         vm.getContentDTOList()
-        binding.detailviewfragmentRecyclerview.adapter =
-            DetailViewRecyclerViewAdapter(requireActivity())
+        observeDetailViewModel()
+
         return binding.root
     }
 
     private fun observeDetailViewModel(){
-        vm.contentDTOList.observe(viewLifecycleOwner, Observer {
-            
-        })
+        vm.contentDTOList.observe(viewLifecycleOwner) {
+            Log.d("DetailViewFragment", "it.size - ${it.size}")
+            for (snapshot in it) {
+                val item = snapshot.toObject(ContentDTO::class.java)
+                contentDTOs.add(item!!)
+                contentUIDList.add(snapshot.id)
+            }
+            binding.detailviewfragmentRecyclerview.adapter =
+                DetailViewRecyclerViewAdapter(requireActivity(), contentDTOs, contentUIDList);
+        }
     }
 }
