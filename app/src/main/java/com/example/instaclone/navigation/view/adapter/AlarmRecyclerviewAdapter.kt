@@ -1,4 +1,4 @@
-package com.example.instaclone.navigation.adapter
+package com.example.instaclone.navigation.view.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -13,10 +13,8 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.instaclone.R
 import com.example.instaclone.databinding.ItemCommentBinding
 import com.example.instaclone.navigation.model.AlarmDTO
-import com.example.instaclone.navigation.util.Constants
 import com.example.instaclone.navigation.util.Constants.Companion.DESTINATION_UID
 import com.example.instaclone.navigation.util.Constants.Companion.firebaseAuth
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.lang.reflect.InvocationTargetException
 

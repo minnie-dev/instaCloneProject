@@ -1,4 +1,4 @@
-package com.example.instaclone.navigation
+package com.example.instaclone.navigation.view
 
 import android.os.Bundle
 import android.util.Log
@@ -8,14 +8,12 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import com.example.instaclone.R
 import com.example.instaclone.databinding.FragmentDetailBinding
-import com.example.instaclone.navigation.adapter.DetailViewRecyclerViewAdapter
+import com.example.instaclone.navigation.view.adapter.DetailViewRecyclerViewAdapter
 import com.example.instaclone.navigation.model.ContentDTO
 import com.example.instaclone.navigation.util.Constants.Companion.firebaseAuth
 import com.example.instaclone.navigation.viewmodel.DetailViewModel
-import com.google.firebase.firestore.DocumentSnapshot
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -46,7 +44,7 @@ class DetailViewFragment : Fragment() {
         return binding.root
     }
 
-    private fun observeDetailViewModel(){
+    private fun observeDetailViewModel() {
         vm.contentDTOList.observe(viewLifecycleOwner) {
             Log.d("DetailViewFragment", "it.size - ${it.size}")
             for (snapshot in it) {

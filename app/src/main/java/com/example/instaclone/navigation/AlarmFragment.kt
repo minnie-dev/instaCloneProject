@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.instaclone.databinding.FragmentAlarmBinding
-import com.example.instaclone.navigation.adapter.AlarmRecyclerviewAdapter
+import com.example.instaclone.navigation.view.adapter.AlarmRecyclerviewAdapter
 
 class AlarmFragment : Fragment() {
     private lateinit var binding: FragmentAlarmBinding

@@ -1,4 +1,4 @@
-package com.example.instaclone.navigation.adapter
+package com.example.instaclone.navigation.view.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -127,6 +127,7 @@ class DetailViewRecyclerViewAdapter(
 
             //user id
             binding.detailviewitemProfileTextview.text = contentDTOs[position].userId
+
             //image
             Glide.with(itemView.context)
                 .load(contentDTOs[position].imageUrl)
@@ -156,11 +157,11 @@ class DetailViewRecyclerViewAdapter(
 
             //explain of content
             binding.detailviewitemExplainTextview.text = contentDTOs[position].explain
+
             //likes
             binding.detailviewitemFavoritecounterTextview.text =
                 "Likes ${contentDTOs[position].favoriteCount}"
-            //profile
-            //Glide.with(holder.itemView.context).load(contentDTOs[position].imageUrl).into(binding.detailviewitemProfileImage)
+
 
             //This code is when the button is clicked
             binding.detailviewitemFavoriteImageview.setOnClickListener {
@@ -187,26 +188,6 @@ class DetailViewRecyclerViewAdapter(
                 ) // 인텐트 안에 컨텐트 내가 선택한 이미지의 uid넘겨줌
                 intent.putExtra(DESTINATION_UID, contentDTOs[position].uid)
                 context.startActivity(intent)
-            }
-        }
-
-        fun bind2() {
-            val pos = adapterPosition
-            binding.detailviewitemProfileImage.setOnClickListener {
-                val fragment = UserFragment()
-                val bundle = Bundle()
-                bundle.putString(DESTINATION_UID, contentDTOs[pos].uid)
-                bundle.putString("userId", contentDTOs[pos].userId)
-                fragment.arguments = bundle
-                (context as FragmentActivity).supportFragmentManager.beginTransaction()
-                    .replace(R.id.main_content, fragment).commit()
-            }
-
-            //user id
-            binding.detailviewitemProfileTextview.text = contentDTOs[pos].userId
-            binding.detailviewitemFavoriteImageview.setOnClickListener {
-                Log.d("DetailViewRecycler", "postio : $pos")
-                binding.detailviewitemExplainTextview.text = "뭐지"
             }
         }
     }

@@ -24,7 +24,7 @@ import com.example.instaclone.LoginActivity
 import com.example.instaclone.MainActivity
 import com.example.instaclone.R
 import com.example.instaclone.databinding.FragmentUserBinding
-import com.example.instaclone.navigation.adapter.UserFragmentRecyclerViewAdapter
+import com.example.instaclone.navigation.view.adapter.UserFragmentRecyclerViewAdapter
 import com.example.instaclone.navigation.model.AlarmDTO
 import com.example.instaclone.navigation.model.ContentDTO
 import com.example.instaclone.navigation.model.FollowDTO

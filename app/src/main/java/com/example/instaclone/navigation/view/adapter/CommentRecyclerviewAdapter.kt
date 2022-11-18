@@ -1,4 +1,4 @@
-package com.example.instaclone.navigation.adapter
+package com.example.instaclone.navigation.view.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

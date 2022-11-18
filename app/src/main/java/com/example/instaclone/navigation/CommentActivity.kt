@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.instaclone.R
 import com.example.instaclone.databinding.ActivityCommentBinding
-import com.example.instaclone.navigation.adapter.CommentRecyclerviewAdapter
+import com.example.instaclone.navigation.view.adapter.CommentRecyclerviewAdapter
 import com.example.instaclone.navigation.model.AlarmDTO
 import com.example.instaclone.navigation.model.ContentDTO
 import com.example.instaclone.navigation.util.Constants.Companion.DESTINATION_UID

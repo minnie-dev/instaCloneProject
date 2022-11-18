@@ -18,6 +18,8 @@ import com.example.instaclone.navigation.*
 import com.example.instaclone.navigation.util.Constants.Companion.DESTINATION_UID
 import com.example.instaclone.navigation.util.Constants.Companion.firebaseAuth
 import com.example.instaclone.navigation.util.Constants.Companion.firebaseFirestore
+import com.example.instaclone.navigation.view.DetailViewFragment
+import com.example.instaclone.navigation.view.GridFragment
 import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
