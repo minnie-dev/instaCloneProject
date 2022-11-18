@@ -30,13 +30,9 @@ import com.google.firebase.firestore.FirebaseFirestore
  */
 
 @SuppressLint("NotifyDataSetChanged")
-class DetailViewRecyclerViewAdapter(
-    context: Context,
-    contentDTOs: List<ContentDTO>,
-    contentUIDList: List<String>
-) : RecyclerView.Adapter<DetailViewRecyclerViewAdapter.CustomViewHolder>() {
-    private var contentDTOs: ArrayList<ContentDTO> = arrayListOf() // 업로드 내용
-    private var contentUIDList: ArrayList<String> = arrayListOf() // 사용자 정보 List
+class DetailViewRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<DetailViewRecyclerViewAdapter.CustomViewHolder>() {
+    var contentDTOs: ArrayList<ContentDTO> = arrayListOf() // 업로드 내용
+    var contentUIDList: ArrayList<String> = arrayListOf() // 사용자 정보 List
     var uid: String
     var context: Context
 
@@ -44,8 +40,7 @@ class DetailViewRecyclerViewAdapter(
     init {
         uid = firebaseAuth.currentUser!!.uid
         this.context = context
-        this.contentDTOs = contentDTOs as ArrayList<ContentDTO>
-        this.contentUIDList = contentUIDList as ArrayList<String>
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
