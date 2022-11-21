@@ -24,9 +24,7 @@ class DetailViewFragment : Fragment() {
 
     private lateinit var binding: FragmentDetailBinding
     private var uid = ""
-    private val detailvm: DetailViewModel by viewModels()
-    private var contentDTOs: ArrayList<ContentDTO> = arrayListOf() // 업로드 내용
-    private var contentUIDList: ArrayList<String> = arrayListOf() // 사용자 정보 List
+    private val detailVM: DetailViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,22 +38,17 @@ class DetailViewFragment : Fragment() {
             false
         )
 
-        binding.vm = detailvm
+        binding.vm = detailVM
         uid = firebaseAuth.currentUser!!.uid
-        detailvm.getContentDTOList()
+        detailVM.getContentList()
         observeDetailViewModel()
 
         return binding.root
     }
 
     private fun observeDetailViewModel() {
-        detailvm.contentDTOList.observe(viewLifecycleOwner) {
+        detailVM.contentDTOList.observe(viewLifecycleOwner) {
             Log.d("DetailViewFragment", "it.size - ${it.size}")
-            for (snapshot in it) {
-                val item = snapshot.toObject(ContentDTO::class.java)
-                contentDTOs.add(item!!)
-                contentUIDList.add(snapshot.id)
-            }
             binding.detailviewfragmentRecyclerview.adapter =
                 DetailViewRecyclerViewAdapter(requireActivity())
             binding.invalidateAll()
@@ -64,34 +57,24 @@ class DetailViewFragment : Fragment() {
 }
 
 @SuppressLint("NotifyDataSetChanged")
-@BindingAdapter("bindDTOData")
-fun bindingDTOData(recyclerView: RecyclerView, contentList: ArrayList<ContentDTO>?) {
-    Log.d("DetailViewFragment", "bindingDTOData()");
+@BindingAdapter(value = ["bindDTO", "bindUID"])
+fun bindContentList(
+    recyclerView: RecyclerView,
+    dtoList: ArrayList<ContentDTO>?,
+    uidList: ArrayList<String>?
+) {
+    Log.d("DetailViewFragment", "bindContentList()");
 
     if (recyclerView.adapter == null) {
         recyclerView.apply {
             adapter = DetailViewRecyclerViewAdapter(context)
         }
     }
-    if (contentList != null) {
-        (recyclerView.adapter as DetailViewRecyclerViewAdapter).contentDTOs = contentList
-        (recyclerView.adapter as DetailViewRecyclerViewAdapter).notifyDataSetChanged()
-    }
-}
-
-
-@SuppressLint("NotifyDataSetChanged")
-@BindingAdapter("bindUIDData")
-fun bindingUIDData(recyclerView: RecyclerView, contentList: ArrayList<String>?) {
-    Log.d("DetailViewFragment", "bindingUIDData()");
-
-    if (recyclerView.adapter == null) {
-        recyclerView.apply {
-            adapter = DetailViewRecyclerViewAdapter(context)
+    if (dtoList != null && uidList != null) {
+        (recyclerView.adapter as DetailViewRecyclerViewAdapter).apply {
+            contentDTOs = dtoList
+            contentUIDs = uidList
+            notifyDataSetChanged()
         }
-    }
-    if (contentList != null) {
-        (recyclerView.adapter as DetailViewRecyclerViewAdapter).contentUIDList = contentList
-        (recyclerView.adapter as DetailViewRecyclerViewAdapter).notifyDataSetChanged()
     }
 }

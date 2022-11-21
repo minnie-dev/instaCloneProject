@@ -16,7 +16,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            bindDTOData="@{}"/>
+            bindDTO="@{vm.contentDTOList}"
+            bindUID="@{vm.contentUIDList}"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -32,7 +32,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 @SuppressLint("NotifyDataSetChanged")
 class DetailViewRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<DetailViewRecyclerViewAdapter.CustomViewHolder>() {
     var contentDTOs: ArrayList<ContentDTO> = arrayListOf() // 업로드 내용
-    var contentUIDList: ArrayList<String> = arrayListOf() // 사용자 정보 List
+    var contentUIDs: ArrayList<String> = arrayListOf() // 사용자 정보 List
     var uid: String
     var context: Context
 
@@ -66,7 +66,7 @@ class DetailViewRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<Det
      */
     private fun favoriteEvent(position: Int) {
         val tsDoc = firebaseFirestore.collection("images")
-            .document(contentUIDList[position]) // images collection에서 원하는 uid의 document에 대한 정보
+            .document(contentUIDs[position]) // images collection에서 원하는 uid의 document에 대한 정보
 
         // 데이터를 저장하기 위해 transaction 사용
         firebaseFirestore.runTransaction { transaction ->
@@ -179,7 +179,7 @@ class DetailViewRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<Det
                 val intent = Intent(it.context, CommentActivity::class.java)
                 intent.putExtra(
                     "contentUid",
-                    contentUIDList[position]
+                    contentUIDs[position]
                 ) // 인텐트 안에 컨텐트 내가 선택한 이미지의 uid넘겨줌
                 intent.putExtra(DESTINATION_UID, contentDTOs[position].uid)
                 context.startActivity(intent)
