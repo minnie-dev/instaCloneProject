@@ -44,21 +44,3 @@ class GridFragment : Fragment() {
         }
     }
 }
-
-
-@SuppressLint("NotifyDataSetChanged")
-@BindingAdapter("bindData")
-fun bindingData(recyclerView: RecyclerView, contentList: ArrayList<ContentDTO>?) {
-    Log.d("GridFragment", "bindingData()");
-
-    if (recyclerView.adapter == null) {
-        recyclerView.apply {
-            adapter = GridFragmentRecyclerViewAdapter(context)
-            layoutManager = GridLayoutManager(context, 3)
-        }
-    }
-    if (contentList != null) {
-        (recyclerView.adapter as GridFragmentRecyclerViewAdapter).contentDTOs = contentList
-        (recyclerView.adapter as GridFragmentRecyclerViewAdapter).notifyDataSetChanged()
-    }
-}

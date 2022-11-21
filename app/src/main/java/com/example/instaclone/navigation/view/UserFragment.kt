@@ -1,4 +1,4 @@
-package com.example.instaclone.navigation
+package com.example.instaclone.navigation.view
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -17,9 +17,6 @@ import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.RequestOptions
 import com.example.instaclone.LoginActivity
 import com.example.instaclone.MainActivity
 import com.example.instaclone.R
@@ -43,6 +40,7 @@ class UserFragment : Fragment() {
     var fireStore: FirebaseFirestore? = null
     var uid: String? = null
     var currentUserUid: String? = null // 내 계정인지 상대방 계정인지 판단
+    var imageUrl = "";
 
     private val startForResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -114,7 +112,7 @@ class UserFragment : Fragment() {
             }
 
         binding.accountRecyclerview.adapter =
-            UserFragmentRecyclerViewAdapter(fireStore!!, contentDTOs, uid!!, requireActivity())
+            UserFragmentRecyclerViewAdapter(contentDTOs, uid!!, requireActivity())
         binding.accountRecyclerview.layoutManager = GridLayoutManager(requireActivity(), 3)
 
         binding.accountIvProfile.setOnClickListener {
@@ -231,13 +229,15 @@ class UserFragment : Fragment() {
     }
 
     private fun followAlarm(destinationUid: String) {
-        var alarmDTO = AlarmDTO()
-        alarmDTO.destinationUid = destinationUid
-        alarmDTO.userId = firebaseAuth.currentUser!!.email!!
-        alarmDTO.uid = firebaseAuth.currentUser!!.uid
-        alarmDTO.kind = 2
-        alarmDTO.timestamp = System.currentTimeMillis()
-        FirebaseFirestore.getInstance().collection("alarms").document().set(alarmDTO)
+        val alarmDTO = AlarmDTO()
+        alarmDTO.apply {
+            this.destinationUid = destinationUid
+            userId = firebaseAuth.currentUser!!.email!!
+            kind = 2
+            timestamp = System.currentTimeMillis()
+        }
+
+        firebaseFirestore.collection("alarms").document().set(alarmDTO)
 
         val message =
             firebaseAuth.currentUser!!.email + context?.resources?.getString(R.string.alarm_follow)
@@ -253,14 +253,7 @@ class UserFragment : Fragment() {
             ?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
                 if (documentSnapshot == null) return@addSnapshotListener
                 if (documentSnapshot.data != null) {
-                    val url = documentSnapshot.data!!["image"] // image 키값
-                    Glide.with(requireActivity())
-                        .load(url).apply(RequestOptions().circleCrop())
-                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-                        .skipMemoryCache(true)
-                        .into(
-                            binding.accountIvProfile
-                        )
+                    imageUrl = documentSnapshot.data!!["image"].toString() // image 키값
                 }
             }
     }

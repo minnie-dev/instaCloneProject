@@ -9,13 +9,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.RequestOptions
 import com.example.instaclone.R
 import com.example.instaclone.databinding.ItemDetailBinding
-import com.example.instaclone.navigation.CommentActivity
-import com.example.instaclone.navigation.UserFragment
+import com.example.instaclone.navigation.view.CommentActivity
+import com.example.instaclone.navigation.view.UserFragment
 import com.example.instaclone.navigation.model.AlarmDTO
 import com.example.instaclone.navigation.model.ContentDTO
 import com.example.instaclone.navigation.util.Constants.Companion.DESTINATION_UID
@@ -30,11 +27,14 @@ import com.google.firebase.firestore.FirebaseFirestore
  */
 
 @SuppressLint("NotifyDataSetChanged")
-class DetailViewRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<DetailViewRecyclerViewAdapter.CustomViewHolder>() {
+class DetailViewRecyclerViewAdapter(context: Context) :
+    RecyclerView.Adapter<DetailViewRecyclerViewAdapter.CustomViewHolder>() {
     var contentDTOs: ArrayList<ContentDTO> = arrayListOf() // 업로드 내용
     var contentUIDs: ArrayList<String> = arrayListOf() // 사용자 정보 List
     var uid: String
     var context: Context
+    var profileImageUrl = ""
+    var imageUrl = ""
 
     // 초기에 fireStore 에 업로드 된 정보들을 얻어서 list 에 add 해준다.
     init {
@@ -45,6 +45,7 @@ class DetailViewRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<Det
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val binding = ItemDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        binding.adapter = this
         return CustomViewHolder(binding)
     }
 
@@ -124,11 +125,7 @@ class DetailViewRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<Det
             binding.detailviewitemProfileTextview.text = contentDTOs[position].userId
 
             //image
-            Glide.with(itemView.context)
-                .load(contentDTOs[position].imageUrl)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .skipMemoryCache(true)
-                .into(binding.detailviewitemImageviewContent)
+            imageUrl = contentDTOs[position].imageUrl
 
             // Profile Image 가져오기
             firebaseFirestore.collection("profileImages")
@@ -136,17 +133,9 @@ class DetailViewRecyclerViewAdapter(context: Context) : RecyclerView.Adapter<Det
                 .get()
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        val url = it.result["image"]
-                        Log.d("DetailViewRecyclerView", "position $position : $url")
-                        Glide.with(itemView.context)
-                            .load(url)
-                            .apply(
-                                RequestOptions().circleCrop()
-                                    .skipMemoryCache(true)
-                                    .diskCacheStrategy(
-                                        DiskCacheStrategy.NONE
-                                    )
-                            ).into(binding.detailviewitemProfileImage)
+                        profileImageUrl = it.result["image"].toString()
+                        binding.invalidateAll()
+                        Log.d("DetailViewRecyclerView", "position $position : $profileImageUrl")
                     }
                 }
 

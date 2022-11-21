@@ -11,6 +11,11 @@ import kotlinx.coroutines.launch
 
 class Constants {
     companion object{
+        const val GLIDE_CENTER = "center"
+        const val GLIDE_CIRCLE = "circle"
+        const val GLIDE_DEFAULT = "default"
+        var recyclerView_type = false
+
         // FCM URL
         const val FCM_URL = "https://fcm.googleapis.com"
         const val DESTINATION_UID = "destinationUid"

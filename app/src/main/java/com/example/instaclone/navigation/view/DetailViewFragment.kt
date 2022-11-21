@@ -23,7 +23,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class DetailViewFragment : Fragment() {
 
     private lateinit var binding: FragmentDetailBinding
-    private var uid = ""
     private val detailVM: DetailViewModel by viewModels()
 
     override fun onCreateView(
@@ -39,7 +38,6 @@ class DetailViewFragment : Fragment() {
         )
 
         binding.vm = detailVM
-        uid = firebaseAuth.currentUser!!.uid
         detailVM.getContentList()
         observeDetailViewModel()
 
@@ -52,29 +50,6 @@ class DetailViewFragment : Fragment() {
             binding.detailviewfragmentRecyclerview.adapter =
                 DetailViewRecyclerViewAdapter(requireActivity())
             binding.invalidateAll()
-        }
-    }
-}
-
-@SuppressLint("NotifyDataSetChanged")
-@BindingAdapter(value = ["bindDTO", "bindUID"])
-fun bindContentList(
-    recyclerView: RecyclerView,
-    dtoList: ArrayList<ContentDTO>?,
-    uidList: ArrayList<String>?
-) {
-    Log.d("DetailViewFragment", "bindContentList()");
-
-    if (recyclerView.adapter == null) {
-        recyclerView.apply {
-            adapter = DetailViewRecyclerViewAdapter(context)
-        }
-    }
-    if (dtoList != null && uidList != null) {
-        (recyclerView.adapter as DetailViewRecyclerViewAdapter).apply {
-            contentDTOs = dtoList
-            contentUIDs = uidList
-            notifyDataSetChanged()
         }
     }
 }

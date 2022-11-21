@@ -18,10 +18,10 @@
         android:theme="@style/Theme.InstaCloneTheme"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".navigation.CommentActivity"
+            android:name=".navigation.view.CommentActivity"
             android:exported="false" />
         <activity
-            android:name=".navigation.AddPhotoActivity"
+            android:name=".navigation.view.AddPhotoActivity"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="util"
+            type="com.example.instaclone.navigation.util.Constants" />
+
+        <variable
+            name="adapter"
+            type="com.example.instaclone.navigation.view.adapter.GridFragmentRecyclerViewAdapter" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/profileImage"
+            setGlideType="@{util.GLIDE_CENTER}"
+            setImageUrl="@{adapter.imageUrl}"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

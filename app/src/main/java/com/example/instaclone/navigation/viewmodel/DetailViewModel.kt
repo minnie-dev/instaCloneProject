@@ -39,6 +39,8 @@ class DetailViewModel
                             .orderBy("timestamp", Query.Direction.DESCENDING)
                             .addSnapshotListener { querySnapshot, exception ->
                                 if (querySnapshot == null) return@addSnapshotListener
+                                contentDTOs.clear()
+                                contentUIDs.clear()
                                 for (snapshot in querySnapshot) {
                                     val item = snapshot.toObject(ContentDTO::class.java)
                                     contentDTOs.add(item)

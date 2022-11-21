@@ -1,4 +1,4 @@
-package com.example.instaclone.navigation
+package com.example.instaclone.navigation.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -10,8 +10,9 @@ import com.example.instaclone.navigation.model.AlarmDTO
 import com.example.instaclone.navigation.model.ContentDTO
 import com.example.instaclone.navigation.util.Constants.Companion.DESTINATION_UID
 import com.example.instaclone.navigation.util.Constants.Companion.firebaseAuth
+import com.example.instaclone.navigation.util.Constants.Companion.firebaseFirestore
+import com.example.instaclone.navigation.util.Constants.Companion.recyclerView_type
 import com.example.instaclone.navigation.util.FcmPush
-import com.google.firebase.firestore.FirebaseFirestore
 
 class CommentActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCommentBinding
@@ -36,7 +37,7 @@ class CommentActivity : AppCompatActivity() {
             comment.timestamp = System.currentTimeMillis()
 
             //DB 저장
-            FirebaseFirestore.getInstance().collection("images")
+            firebaseFirestore.collection("images")
                 .document(contentUid)
                 .collection("comments")
                 .document()
@@ -51,16 +52,23 @@ class CommentActivity : AppCompatActivity() {
     //커멘트 달았을 때 알려주는 커멘트 알림 함수
     private fun commentAlarm(destinationUid: String, message: String) {
         val alarmDTO = AlarmDTO()
-        alarmDTO.destinationUid = destinationUid
-        alarmDTO.userId = firebaseAuth.currentUser!!.email!!
-        alarmDTO.uid = firebaseAuth.currentUser!!.uid
-        alarmDTO.kind = 1
-        alarmDTO.message = message
-        alarmDTO.timestamp = System.currentTimeMillis()
-        FirebaseFirestore.getInstance().collection("alarms").document().set(alarmDTO)
+        alarmDTO.apply {
+            this.destinationUid = destinationUid
+            userId = firebaseAuth.currentUser!!.email!!
+            uid = firebaseAuth.currentUser!!.uid
+            kind = 1
+            this.message = message
+            timestamp = System.currentTimeMillis()
+        }
+        firebaseFirestore.collection("alarms").document().set(alarmDTO)
 
         val msg =
             firebaseAuth.currentUser!!.email + " " + resources.getString(R.string.alarm_comment) + " of " + message
         FcmPush.instance.sendMessage(destinationUid, "InstaClone", msg)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        recyclerView_type = false
     }
 }
