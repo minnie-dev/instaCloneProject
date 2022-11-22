@@ -2,6 +2,8 @@ package com.example.instaclone.navigation.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.instaclone.R
 import com.example.instaclone.databinding.ActivityCommentBinding
@@ -13,11 +15,13 @@ import com.example.instaclone.navigation.util.Constants.Companion.firebaseAuth
 import com.example.instaclone.navigation.util.Constants.Companion.firebaseFirestore
 import com.example.instaclone.navigation.util.Constants.Companion.recyclerView_type
 import com.example.instaclone.navigation.util.FcmPush
+import com.example.instaclone.navigation.viewmodel.CommentViewModel
 
 class CommentActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCommentBinding
     private var contentUid = " "
     private var destinationUid = " "
+    private val commentVM: CommentViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,26 +30,33 @@ class CommentActivity : AppCompatActivity() {
         contentUid = intent.getStringExtra("contentUid")!!
         destinationUid = intent.getStringExtra(DESTINATION_UID)!!
 
-        binding.commentRecyclerview.adapter = CommentRecyclerviewAdapter(contentUid)
-        binding.commentRecyclerview.layoutManager = LinearLayoutManager(this)
+        commentVM.getFireBaseCommentList(contentUid)
+        observeCommentViewModel()
 
         binding.commentBtnSend.setOnClickListener {
             val comment = ContentDTO.Comment()
-            comment.userId = firebaseAuth.currentUser!!.email!!
-            comment.uid = firebaseAuth.currentUser!!.uid
-            comment.comment = binding.commentEditMessage.text.toString()
-            comment.timestamp = System.currentTimeMillis()
+
+            comment.apply {
+                userId = firebaseAuth.currentUser!!.email!!
+                uid = firebaseAuth.currentUser!!.uid
+                this.comment = binding.commentEditMessage.text.toString()
+                timestamp = System.currentTimeMillis()
+            }
 
             //DB 저장
-            firebaseFirestore.collection("images")
-                .document(contentUid)
-                .collection("comments")
-                .document()
-                .set(comment)
+            commentVM.setCommentDB(contentUid, comment)
+
             //커멘트 받는 부분
             commentAlarm(destinationUid, binding.commentEditMessage.text.toString())
             binding.commentEditMessage.setText("") // 보내고 나서 edit 초기화
+        }
+    }
 
+    private fun observeCommentViewModel() {
+        commentVM.commentLiveData.observe(this) {
+            Log.d("CommentActivity", "it.size - ${it.size}")
+            binding.commentRecyclerview.adapter=
+                CommentRecyclerviewAdapter()
         }
     }
 

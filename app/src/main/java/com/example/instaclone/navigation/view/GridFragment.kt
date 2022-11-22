@@ -1,16 +1,13 @@
 package com.example.instaclone.navigation.view
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.BindingAdapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.instaclone.databinding.FragmentGridBinding
 import com.example.instaclone.navigation.view.adapter.GridFragmentRecyclerViewAdapter
 import com.example.instaclone.navigation.model.ContentDTO

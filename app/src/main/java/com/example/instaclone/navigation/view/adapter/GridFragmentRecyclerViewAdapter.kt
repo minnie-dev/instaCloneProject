@@ -2,10 +2,12 @@ package com.example.instaclone.navigation.view.adapter
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.example.instaclone.R
 import com.example.instaclone.databinding.ItemGridBinding
@@ -42,8 +44,17 @@ class GridFragmentRecyclerViewAdapter(context: Context) :
 
     inner class CustomViewHolder(var binding: ItemGridBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
+        private val lifecycleOwner by lazy {
+            binding.root.context as? LifecycleOwner
+        }
+
+
         fun bind() {
+            binding.lifecycleOwner = lifecycleOwner
+            Log.d("GridRecyclerViewAdapter", "bind position - $adapterPosition")
             val position = adapterPosition
+
             imageUrl = contentDTOs[position].imageUrl
 
             binding.root.setOnClickListener {

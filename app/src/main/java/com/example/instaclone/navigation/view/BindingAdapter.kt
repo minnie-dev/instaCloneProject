@@ -78,6 +78,7 @@ fun bindingData(recyclerView: RecyclerView, contentList: ArrayList<ContentDTO>?)
 
 @BindingAdapter(value = ["setImageUrl", "setGlideType"], requireAll = false)
 fun setImageByGlide(view: ImageView, url: String?, type: String) {
+    Log.d("BindingAdapter", " 확인 url - $url , type - $type")
     when (type) {
         Constants.GLIDE_CENTER -> {
             Glide.with(view.context)

@@ -12,16 +12,11 @@
             type="com.example.instaclone.navigation.view.adapter.UserFragmentRecyclerViewAdapter" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ImageView
+        android:id="@+id/profileImage"
+        setGlideType="@{util.GLIDE_CENTER}"
+        setImageUrl="@{adapter.imageUrl}"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent" />
 
-        <ImageView
-            android:id="@+id/profileImage"
-            setGlideType="@{util.GLIDE_CENTER}"
-            setImageUrl="@{adapter.imageUrl}"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
