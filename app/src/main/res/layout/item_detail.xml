@@ -8,8 +8,12 @@
             type="com.example.instaclone.navigation.util.Constants" />
 
         <variable
-            name="adapter"
-            type="com.example.instaclone.navigation.view.adapter.DetailViewRecyclerViewAdapter" />
+            name="profileImageUrl"
+            type="String" />
+
+        <variable
+            name="imageUrl"
+            type="String" />
     </data>
 
     <LinearLayout
@@ -26,7 +30,7 @@
             <ImageView
                 android:id="@+id/detailviewitem_profile_image"
                 setGlideType="@{util.GLIDE_CIRCLE}"
-                setImageUrl="@{adapter.profileImageUrl}"
+                setImageUrl="@{profileImageUrl}"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_margin="7.5dp"
@@ -42,7 +46,7 @@
         <ImageView
             android:id="@+id/detailviewitem_imageview_content"
             setGlideType="@{util.GLIDE_DEFAULT}"
-            setImageUrl="@{adapter.imageUrl}"
+            setImageUrl="@{imageUrl}"
             android:layout_width="match_parent"
             android:layout_height="250dp"
             android:scaleType="fitXY" />

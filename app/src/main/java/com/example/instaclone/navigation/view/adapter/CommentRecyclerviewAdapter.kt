@@ -3,28 +3,19 @@ package com.example.instaclone.navigation.view.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.RequestOptions
 import com.example.instaclone.databinding.ItemCommentBinding
 import com.example.instaclone.navigation.model.ContentDTO
 import com.example.instaclone.navigation.util.Constants.Companion.firebaseFirestore
-import com.example.instaclone.navigation.util.Constants.Companion.recyclerView_type
-import com.google.firebase.firestore.FirebaseFirestore
+
 
 class CommentRecyclerviewAdapter() :
     RecyclerView.Adapter<CommentRecyclerviewAdapter.CustomViewHolder>() {
     private var comments: ArrayList<ContentDTO.Comment> = arrayListOf()
-    var imageUrl = ""
 
-    init {
-        recyclerView_type = true
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val binding =
             ItemCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        binding.commentAdapter = this
         return CustomViewHolder(binding)
     }
 
@@ -32,6 +23,7 @@ class CommentRecyclerviewAdapter() :
         RecyclerView.ViewHolder(binding.root) {
         fun bind() {
             val position = adapterPosition
+
             binding.commentviewitemTextviewComment.text = comments[position].comment
             binding.commentviewitemTextviewProfile.text = comments[position].userId
 
@@ -41,7 +33,7 @@ class CommentRecyclerviewAdapter() :
                 .get()
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        imageUrl = task.result!!["image"].toString()// url주소 받아옴
+                        binding.imageUrl = task.result!!["image"].toString()// url주소 받아옴
                     }
                 }
         }

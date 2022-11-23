@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.example.instaclone.R
 import com.example.instaclone.databinding.ItemDetailBinding
@@ -33,8 +34,6 @@ class DetailViewRecyclerViewAdapter(context: Context) :
     var contentUIDs: ArrayList<String> = arrayListOf() // 사용자 정보 List
     var uid: String
     var context: Context
-    var profileImageUrl = ""
-    var imageUrl = ""
 
     // 초기에 fireStore 에 업로드 된 정보들을 얻어서 list 에 add 해준다.
     init {
@@ -44,8 +43,8 @@ class DetailViewRecyclerViewAdapter(context: Context) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
-        val binding = ItemDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        binding.adapter = this
+        val binding =
+            ItemDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return CustomViewHolder(binding)
     }
 
@@ -74,19 +73,17 @@ class DetailViewRecyclerViewAdapter(context: Context) :
             uid = firebaseAuth.currentUser!!.uid // uid 값 가져옴
 
             val contentDTO = transaction.get(tsDoc) // 해당 document 받아오기
-                .toObject(ContentDTO::class.java)//트랜젝션의 데이터를 ContentDTO로 캐스팅
-
-            contentDTO?.let {
-                if (it.favorites.containsKey(uid)) { // 이미 좋아요를 눌렀을 경욱 -> 좋아요 취소
-                    it.favoriteCount -= 1
-                    it.favorites.remove(uid)
-                } else {
-                    it.favoriteCount += 1
-                    it.favorites[uid] = true
-                    favoriteAlarm(contentDTOs[position].uid) // 카운트 올라감
-                }
-                transaction.set(tsDoc, it) // 해당 document에 Dto 객체 저장 , 트랜젝션을 다시 서버로 돌려줌
-            }
+                .toObject(ContentDTO::class.java)?.apply {
+                    if (favorites.containsKey(uid)) { // 이미 좋아요를 눌렀을 경욱 -> 좋아요 취소
+                        favoriteCount -= 1
+                        favorites.remove(uid)
+                    } else {
+                        favoriteCount += 1
+                        favorites[uid] = true
+                        favoriteAlarm(contentDTOs[position].uid) // 카운트 올라감
+                    }
+                    transaction.set(tsDoc, this) // 해당 document에 Dto 객체 저장 , 트랜젝션을 다시 서버로 돌려줌
+                }//트랜젝션의 데이터를 ContentDTO로 캐스팅
         }
     }
 
@@ -107,7 +104,9 @@ class DetailViewRecyclerViewAdapter(context: Context) :
 
     inner class CustomViewHolder(private val binding: ItemDetailBinding) :
         RecyclerView.ViewHolder(binding.root) {
-
+        val lifecycleOwner by lazy {
+            binding.root.context as LifecycleOwner
+        }
         fun bind() {
             val position = adapterPosition
             //프로파일 이미지 클릭하면 상대방 유저 정보로 이동
@@ -124,8 +123,7 @@ class DetailViewRecyclerViewAdapter(context: Context) :
             //user id
             binding.detailviewitemProfileTextview.text = contentDTOs[position].userId
 
-            //image
-            imageUrl = contentDTOs[position].imageUrl
+            binding.imageUrl = contentDTOs[position].imageUrl
 
             // Profile Image 가져오기
             firebaseFirestore.collection("profileImages")
@@ -133,9 +131,9 @@ class DetailViewRecyclerViewAdapter(context: Context) :
                 .get()
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        profileImageUrl = it.result["image"].toString()
+                        binding.profileImageUrl = it.result["image"].toString()
                         binding.invalidateAll()
-                        Log.d("DetailViewRecyclerView", "position $position : $profileImageUrl")
+                        Log.d("DetailViewRecyclerView", "position $position")
                     }
                 }
 

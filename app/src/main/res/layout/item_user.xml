@@ -8,14 +8,14 @@
             type="com.example.instaclone.navigation.util.Constants" />
 
         <variable
-            name="adapter"
-            type="com.example.instaclone.navigation.view.adapter.UserFragmentRecyclerViewAdapter" />
+            name="imageUrl"
+            type="String" />
     </data>
 
     <ImageView
         android:id="@+id/profileImage"
         setGlideType="@{util.GLIDE_CENTER}"
-        setImageUrl="@{adapter.imageUrl}"
+        setImageUrl="@{imageUrl}"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

@@ -9,12 +9,8 @@
             type="com.example.instaclone.navigation.util.Constants" />
 
         <variable
-            name="alarmAdapter"
-            type="com.example.instaclone.navigation.view.adapter.AlarmRecyclerviewAdapter" />
-
-        <variable
-            name="commentAdapter"
-            type="com.example.instaclone.navigation.view.adapter.CommentRecyclerviewAdapter" />
+            name="imageUrl"
+            type="String" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,7 +21,7 @@
         <ImageView
             android:id="@+id/commentviewitem_imageview_profile"
             setGlideType="@{util.GLIDE_CIRCLE}"
-            setImageUrl="@{util.Companion.recyclerView_type ? commentAdapter.imageUrl : alarmAdapter.imageUrl}"
+            setImageUrl="@{imageUrl}"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_margin="7.5dp"

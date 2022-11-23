@@ -7,34 +7,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.RequestOptions
 import com.example.instaclone.R
 import com.example.instaclone.databinding.ItemCommentBinding
 import com.example.instaclone.navigation.model.AlarmDTO
-import com.example.instaclone.navigation.util.Constants
-import com.example.instaclone.navigation.util.Constants.Companion.DESTINATION_UID
-import com.example.instaclone.navigation.util.Constants.Companion.firebaseAuth
-import com.example.instaclone.navigation.util.Constants.Companion.recyclerView_type
 import com.google.firebase.firestore.FirebaseFirestore
-import java.lang.reflect.InvocationTargetException
 
 @SuppressLint("NotifyDataSetChanged")
 class AlarmRecyclerviewAdapter(context: Context) :
     RecyclerView.Adapter<AlarmRecyclerviewAdapter.CustomViewHolder>() {
     var alarmDTOs: ArrayList<AlarmDTO> = arrayListOf() //알람 저장하는 리스트 변수
     private var context: Context
-    var imageUrl = ""
 
     init {
-        recyclerView_type = false
         this.context = context
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val binding = ItemCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        binding.alarmAdapter = this
         return CustomViewHolder(binding)
     }
 
@@ -46,7 +35,7 @@ class AlarmRecyclerviewAdapter(context: Context) :
                 .document(alarmDTOs[position].uid)
                 .get().addOnCompleteListener {
                     if (it.isSuccessful) {
-                        imageUrl = it.result["image"].toString()
+                        binding.imageUrl = it.result["image"].toString()
                     }
                 }
             when (alarmDTOs[position].kind) {

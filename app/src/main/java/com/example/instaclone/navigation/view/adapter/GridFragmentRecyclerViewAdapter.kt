@@ -19,17 +19,19 @@ class GridFragmentRecyclerViewAdapter(context: Context) :
     RecyclerView.Adapter<GridFragmentRecyclerViewAdapter.CustomViewHolder>() {
     var contentDTOs = ArrayList<ContentDTO>()
     var context: Context
-    var imageUrl = ""
 
     init {
         this.context = context
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
-        val binding = ItemGridBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        Log.d("GridRecyclerViewAdapter", "onCreateViewHolder()")
         val width = context.resources.displayMetrics.widthPixels / 3 //폭의 3분의 1 값
-        binding.profileImage.layoutParams = ConstraintLayout.LayoutParams(width, width)
-        binding.adapter = this
+        val binding =
+            ItemGridBinding.inflate(LayoutInflater.from(parent.context), parent, false).apply {
+                profileImage.layoutParams = ConstraintLayout.LayoutParams(width, width)
+                lifecycleOwner = root.context as LifecycleOwner
+            }
         return CustomViewHolder(binding)
     }
 
@@ -45,17 +47,10 @@ class GridFragmentRecyclerViewAdapter(context: Context) :
     inner class CustomViewHolder(var binding: ItemGridBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        private val lifecycleOwner by lazy {
-            binding.root.context as? LifecycleOwner
-        }
-
-
         fun bind() {
-            binding.lifecycleOwner = lifecycleOwner
             Log.d("GridRecyclerViewAdapter", "bind position - $adapterPosition")
             val position = adapterPosition
-
-            imageUrl = contentDTOs[position].imageUrl
+            binding.imageUrl = contentDTOs[position].imageUrl
 
             binding.root.setOnClickListener {
                 val fragment = UserFragment()

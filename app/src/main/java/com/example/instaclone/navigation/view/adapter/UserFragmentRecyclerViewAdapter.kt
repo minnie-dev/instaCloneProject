@@ -22,7 +22,6 @@ class UserFragmentRecyclerViewAdapter(
     private var contentDTOs: ArrayList<ContentDTO>
     var uid: String
     var context: Context
-    var imageUrl = ""
 
 
     init {
@@ -35,7 +34,6 @@ class UserFragmentRecyclerViewAdapter(
         val binding = ItemUserBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         val width = context.resources.displayMetrics.widthPixels / 3 //폭의 3분의 1 값
         binding.profileImage.layoutParams = ConstraintLayout.LayoutParams(width, width)
-        binding.adapter = this
         return CustomViewHolder(binding)
     }
 
@@ -43,7 +41,7 @@ class UserFragmentRecyclerViewAdapter(
         RecyclerView.ViewHolder(binding.root) {
         fun bind() {
             val position = adapterPosition
-            imageUrl = contentDTOs[position].imageUrl
+            binding.imageUrl = contentDTOs[position].imageUrl
         }
     }
 
