@@ -13,14 +13,9 @@ import com.example.instaclone.navigation.model.AlarmDTO
 import com.google.firebase.firestore.FirebaseFirestore
 
 @SuppressLint("NotifyDataSetChanged")
-class AlarmRecyclerviewAdapter(context: Context) :
+class AlarmRecyclerviewAdapter :
     RecyclerView.Adapter<AlarmRecyclerviewAdapter.CustomViewHolder>() {
     var alarmDTOs: ArrayList<AlarmDTO> = arrayListOf() //알람 저장하는 리스트 변수
-    private var context: Context
-
-    init {
-        this.context = context
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val binding = ItemCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -30,6 +25,7 @@ class AlarmRecyclerviewAdapter(context: Context) :
     inner class CustomViewHolder(private val binding: ItemCommentBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind() {
+            val context = binding.root.context
             val position = adapterPosition
             FirebaseFirestore.getInstance().collection("profilesImages")
                 .document(alarmDTOs[position].uid)

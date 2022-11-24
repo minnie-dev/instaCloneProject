@@ -21,11 +21,12 @@ class FcmPush {
             .addOnCompleteListener {
                 if (it.isSuccessful) {
                     val token = it.result.get("pushToken").toString()
-                    val pushDTO = PushDTO()
-                    pushDTO.to = token
-                    pushDTO.notification.title = title
-                    pushDTO.notification.body = message
-                    sendNotification(pushDTO)
+                    PushDTO().apply {
+                        to = token
+                        notification.title = title
+                        notification.body = message
+                        sendNotification(this)
+                    }
                 }
             }
     }
@@ -35,9 +36,9 @@ class FcmPush {
             try {
                 val response = RetrofitInstance.api.sendNotification(pushDTO)
                 if (response.isSuccessful) {
-                    Log.d("", "sendNotification() isSuccessful ")
+                    Log.d("FcmPush", "sendNotification() isSuccessful ")
                 } else {
-                    Log.e("", "${response.errorBody()}")
+                    Log.e("FcmPush", "${response.errorBody()}")
                 }
             } catch (e: Exception) {
                 println(e.stackTrace)

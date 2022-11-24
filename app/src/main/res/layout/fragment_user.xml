@@ -1,88 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ImageView
-        android:id="@+id/account_iv_profile"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_margin="5dp"
-        android:src="@drawable/ic_account"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <data>
 
-    <TextView
-        android:id="@+id/account_tv_post"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:text="@string/post"
-        app:layout_constraintStart_toEndOf="@id/account_iv_profile"
-        app:layout_constraintTop_toTopOf="parent" />
+        <variable
+            name="followChk"
+            type="String" />
 
-    <TextView
-        android:id="@+id/account_tv_post_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/count_0"
-        app:layout_constraintEnd_toEndOf="@id/account_tv_post"
-        app:layout_constraintStart_toStartOf="@id/account_tv_post"
-        app:layout_constraintTop_toBottomOf="@id/account_tv_post" />
+        <variable
+            name="followingCnt"
+            type="String" />
 
-    <TextView
-        android:id="@+id/account_tv_follower"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/follower"
-        app:layout_constraintEnd_toStartOf="@id/account_tv_following"
-        app:layout_constraintStart_toEndOf="@id/account_tv_post"
-        app:layout_constraintTop_toTopOf="parent" />
+        <variable
+            name="followerCnt"
+            type="String" />
 
-    <TextView
-        android:id="@+id/account_tv_follower_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/count_0"
-        app:layout_constraintEnd_toEndOf="@id/account_tv_follower"
-        app:layout_constraintStart_toStartOf="@id/account_tv_follower"
-        app:layout_constraintTop_toBottomOf="@id/account_tv_follower" />
+        <variable
+            name="vm"
+            type="com.example.instaclone.navigation.viewmodel.UserViewModel" />
+    </data>
 
-    <TextView
-        android:id="@+id/account_tv_following"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
-        android:text="@string/following"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/account_tv_follower"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/account_tv_following_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/count_0"
-        app:layout_constraintEnd_toEndOf="@id/account_tv_following"
-        app:layout_constraintStart_toStartOf="@id/account_tv_following"
-        app:layout_constraintTop_toBottomOf="@id/account_tv_following" />
-
-    <Button
-        android:id="@+id/account_btn_follow_signout"
-        android:layout_width="0dp"
-        android:layout_height="40dp"
-        android:text="@string/follow"
-        app:layout_constraintBottom_toBottomOf="@id/account_iv_profile"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/account_iv_profile"
-        app:layout_constraintTop_toBottomOf="@id/account_tv_post_count" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/account_recyclerview"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        app:layout_constraintTop_toBottomOf="@id/account_iv_profile" />
+        android:layout_height="match_parent">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:id="@+id/account_iv_profile"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_margin="5dp"
+            android:src="@drawable/ic_account"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/account_tv_post"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="@string/post"
+            app:layout_constraintStart_toEndOf="@id/account_iv_profile"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/account_tv_post_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/count_0"
+            app:layout_constraintEnd_toEndOf="@id/account_tv_post"
+            app:layout_constraintStart_toStartOf="@id/account_tv_post"
+            app:layout_constraintTop_toBottomOf="@id/account_tv_post" />
+
+        <TextView
+            android:id="@+id/account_tv_follower"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/follower"
+            app:layout_constraintEnd_toStartOf="@id/account_tv_following"
+            app:layout_constraintStart_toEndOf="@id/account_tv_post"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/account_tv_follower_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/count_0"
+            app:layout_constraintEnd_toEndOf="@id/account_tv_follower"
+            app:layout_constraintStart_toStartOf="@id/account_tv_follower"
+            app:layout_constraintTop_toBottomOf="@id/account_tv_follower" />
+
+        <TextView
+            android:id="@+id/account_tv_following"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:text="@string/following"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/account_tv_follower"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/account_tv_following_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/count_0"
+            app:layout_constraintEnd_toEndOf="@id/account_tv_following"
+            app:layout_constraintStart_toStartOf="@id/account_tv_following"
+            app:layout_constraintTop_toBottomOf="@id/account_tv_following" />
+
+        <Button
+            android:id="@+id/account_btn_follow_signout"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:text="@string/follow"
+            app:layout_constraintBottom_toBottomOf="@id/account_iv_profile"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/account_iv_profile"
+            app:layout_constraintTop_toBottomOf="@id/account_tv_post_count" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/account_recyclerview"
+            bindUserContentList="@{vm.contentDTOList}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            app:layout_constraintTop_toBottomOf="@id/account_iv_profile" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

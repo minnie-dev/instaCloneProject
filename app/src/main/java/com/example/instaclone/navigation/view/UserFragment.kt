@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.instaclone.LoginActivity
 import com.example.instaclone.MainActivity
@@ -29,14 +30,18 @@ import com.example.instaclone.navigation.util.Constants.Companion.DESTINATION_UI
 import com.example.instaclone.navigation.util.Constants.Companion.firebaseAuth
 import com.example.instaclone.navigation.util.Constants.Companion.firebaseFirestore
 import com.example.instaclone.navigation.util.FcmPush
+import com.example.instaclone.navigation.viewmodel.UserViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import dagger.hilt.android.AndroidEntryPoint
 
 //내 계정, 상대방 계정
+@AndroidEntryPoint
 class UserFragment : Fragment() {
     lateinit var binding: FragmentUserBinding
-    private var contentDTOs: ArrayList<ContentDTO> = arrayListOf()
+    private val userVM: UserViewModel by viewModels()
 
+    private var contentDTOs: ArrayList<ContentDTO> = arrayListOf()
     var fireStore: FirebaseFirestore? = null
     var uid: String? = null
     var currentUserUid: String? = null // 내 계정인지 상대방 계정인지 판단
@@ -72,48 +77,38 @@ class UserFragment : Fragment() {
         currentUserUid = firebaseAuth.currentUser!!.uid
         if (arguments != null) {
             uid = arguments?.getString(DESTINATION_UID)
-            if (uid != null && uid == currentUserUid) {
-                //MyPage
-                binding.accountBtnFollowSignout.text =
-                    activity?.resources?.getString(R.string.signout)
-                binding.accountBtnFollowSignout.setOnClickListener { // 액티비티 종료 및 login 액티비티 이동, firebase auth 값에 signOut
-                    activity?.finish()
-                    startActivity(Intent(activity, LoginActivity::class.java))
-                    firebaseAuth.signOut()
-                }
-            } else {
-                //OtherUserPage
-                binding.accountBtnFollowSignout.text =
-                    activity?.resources?.getString(R.string.follow)
-                val mainActivity = (activity as MainActivity) //누구의 유저 페이지인지 텍스트 백버튼 활성화
-                mainActivity.binding.toolbarUsername.text = arguments?.getString("userId")
-                mainActivity.binding.toolbarBtnBack.setOnClickListener {  // 뒤로가기 이벤트
-                    mainActivity.binding.bottomNavigation.selectedItemId = R.id.action_home
-                }
-                mainActivity.binding.toolbarTitleImage.visibility = View.GONE
-                mainActivity.binding.toolbarUsername.visibility = View.VISIBLE
-                mainActivity.binding.toolbarBtnBack.visibility = View.VISIBLE
-                binding.accountBtnFollowSignout.setOnClickListener {
-                    requestFollow()
+            binding.apply {
+                if (uid != null && uid == currentUserUid) {
+                    //MyPage
+                    followChk = activity?.resources?.getString(R.string.signout)
+
+                    accountBtnFollowSignout.setOnClickListener { // 액티비티 종료 및 login 액티비티 이동, firebase auth 값에 signOut
+                        activity?.finish()
+                        startActivity(Intent(activity, LoginActivity::class.java))
+                        firebaseAuth.signOut()
+                    }
+                } else {
+                    //OtherUserPage
+                    followChk = activity?.resources?.getString(R.string.follow)
+                    (activity as MainActivity).apply {
+                        binding.toolbarUsername.text = arguments?.getString("userId")
+                        binding.toolbarBtnBack.setOnClickListener {  // 뒤로가기 이벤트
+                            binding.bottomNavigation.selectedItemId = R.id.action_home
+                        }
+                        binding.toolbarTitleImage.visibility = View.GONE
+                        binding.toolbarUsername.visibility = View.VISIBLE
+                        binding.toolbarBtnBack.visibility = View.VISIBLE
+                    } //누구의 유저 페이지인지 텍스트 백버튼 활성화
+                    accountBtnFollowSignout.setOnClickListener {
+                        requestFollow()
+                    }
                 }
             }
         }
 
-        fireStore!!.collection("images").whereEqualTo("uid", uid)
-            .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                if (querySnapshot == null) return@addSnapshotListener
-                contentDTOs.clear()
-                //Get data
-                for (snapshot in querySnapshot.documents) {
-                    contentDTOs.add(snapshot.toObject(ContentDTO::class.java)!!)
-                }
-                binding.accountTvPostCount.text = contentDTOs.size.toString()
-                binding.accountRecyclerview.adapter?.notifyDataSetChanged()
-            }
-
-        binding.accountRecyclerview.adapter =
-            UserFragmentRecyclerViewAdapter(contentDTOs, uid!!, requireActivity())
-        binding.accountRecyclerview.layoutManager = GridLayoutManager(requireActivity(), 3)
+        binding.vm = userVM
+        userVM.getContentList(uid!!)
+        observeUserViewModel()
 
         binding.accountIvProfile.setOnClickListener {
             if (ContextCompat.checkSelfPermission(
@@ -140,53 +135,72 @@ class UserFragment : Fragment() {
         getFollower()
     }
 
+    private fun observeUserViewModel() {
+        userVM.contentDTOList.observe(viewLifecycleOwner) {
+            binding.accountTvPostCount.text = contentDTOs.size.toString()
+
+            binding.accountRecyclerview.adapter =
+                UserFragmentRecyclerViewAdapter()
+            binding.accountRecyclerview.layoutManager = GridLayoutManager(requireActivity(), 3)
+        }
+    }
+
     private fun requestFollow() {
         //Save data to my account
         val tsDocFollowing = fireStore?.collection("users")?.document(currentUserUid!!)
         fireStore?.runTransaction { transaction ->
-            var followDTO = transaction.get(tsDocFollowing!!).toObject(FollowDTO::class.java)
-            if (followDTO == null) {
-                followDTO = FollowDTO()
-                followDTO.followingCount = 1
-                followDTO.followings[uid!!] = true
+            var followingDTO = transaction.get(tsDocFollowing!!).toObject(FollowDTO::class.java)
 
-                transaction.set(tsDocFollowing, followDTO)//data db
+            if (followingDTO == null) {
+                followingDTO = FollowDTO()
+                followingDTO.followingCount = 1
+                followingDTO.followings[uid!!] = true
+
+                transaction.set(tsDocFollowing, followingDTO)//data db
                 return@runTransaction
             }
-            if (followDTO.followings.containsKey(uid)) {
-                //It remove following third person when a third person follow me //팔로우를 한 상태 -> 취소
-                followDTO.followingCount = followDTO.followingCount - 1
-                followDTO.followings.remove(uid)//상대방 uid 제거
-            } else {
-                followDTO.followingCount = followDTO.followingCount + 1
-                followDTO.followings[uid!!] = true //상대방 uid 제거
+
+            followingDTO.apply {
+                if (followings.containsKey(uid)) {
+                    //It remove following third person when a third person follow me //팔로우를 한 상태 -> 취소
+                    followingCount -= 1
+                    followings.remove(uid)//상대방 uid 제거
+                } else {
+                    followingCount += 1
+                    followings[uid!!] = true //상대방 uid 제거
+                }
+                transaction.set(tsDocFollowing, this) // 디비 저장
+                return@runTransaction // transaction 닫아줌
             }
-            transaction.set(tsDocFollowing, followDTO) // 디비 저장
-            return@runTransaction // transaction 닫아줌
+
         }
         //Save data to third person 내가 팔로잉할 상대방 계정 접근
         val tsDocFollower = fireStore?.collection("users")?.document(uid!!)
         fireStore?.runTransaction { transaction ->
-            var followDTO = transaction.get(tsDocFollower!!).toObject(FollowDTO::class.java)
-            if (followDTO == null) {
-                followDTO = FollowDTO()
-                followDTO!!.followerCount = 1
-                followDTO!!.followers[currentUserUid!!] = true
+            var followerDTO = transaction.get(tsDocFollower!!).toObject(FollowDTO::class.java)
+
+            if (followerDTO == null) {
+                followerDTO = FollowDTO()
+                followerDTO.followerCount = 1
+                followerDTO.followers[currentUserUid!!] = true
                 followAlarm(uid!!)
 
-                transaction.set(tsDocFollower, followDTO!!)
+                transaction.set(tsDocFollower, followerDTO!!)
                 return@runTransaction
             }
-            if (followDTO!!.followers.containsKey(currentUserUid)) {// 상대방 계정 팔로우 햇을 경우
-                followDTO!!.followerCount = followDTO!!.followerCount - 1
-                followDTO!!.followers.remove(currentUserUid!!)
-            } else {
-                followDTO!!.followerCount = followDTO!!.followerCount + 1
-                followDTO!!.followers[currentUserUid!!] = true //상대방 uid 제거
-                followAlarm(uid!!)
+            followerDTO.apply {
+                if (followers.containsKey(currentUserUid)) { // 상대방 계정 팔로우 햇을 경우
+                    //It remove following third person when a third person follow me //팔로우를 한 상태 -> 취소
+                    followerCount -= 1
+                    followers.remove(currentUserUid)//상대방 uid 제거
+                } else {
+                    followerCount += 1
+                    followers[currentUserUid!!] = true //상대방 uid 제거
+                    followAlarm(uid!!)
+                }
+                transaction.set(tsDocFollower, this)
+                return@runTransaction
             }
-            transaction.set(tsDocFollower, followDTO!!)
-            return@runTransaction
         }
     }
 
@@ -196,7 +210,7 @@ class UserFragment : Fragment() {
             ?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
                 val followDTO =
                     documentSnapshot?.toObject(FollowDTO::class.java) ?: return@addSnapshotListener
-                binding.accountTvFollowingCount.text = followDTO.followingCount.toString()
+                binding.followingCnt = followDTO.followingCount.toString()
             }
     }
 
@@ -207,7 +221,7 @@ class UserFragment : Fragment() {
             ?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
                 val followDTO =
                     documentSnapshot?.toObject(FollowDTO::class.java) ?: return@addSnapshotListener
-                binding.accountTvFollowerCount.text = followDTO.followerCount.toString()
+                binding.followerCnt = followDTO.followerCount.toString()
                 if (followDTO.followers.containsKey(currentUserUid!!)) {// 팔로워 하고있으면 버튼 반환
                     binding.accountBtnFollowSignout.text =
                         activity?.resources?.getString(R.string.follow_cancel)
@@ -229,15 +243,15 @@ class UserFragment : Fragment() {
     }
 
     private fun followAlarm(destinationUid: String) {
-        val alarmDTO = AlarmDTO()
-        alarmDTO.apply {
+        AlarmDTO().apply {
             this.destinationUid = destinationUid
             userId = firebaseAuth.currentUser!!.email!!
             kind = 2
             timestamp = System.currentTimeMillis()
+            firebaseFirestore.collection("alarms").document().set(this)
+
         }
 
-        firebaseFirestore.collection("alarms").document().set(alarmDTO)
 
         val message =
             firebaseAuth.currentUser!!.email + context?.resources?.getString(R.string.alarm_follow)

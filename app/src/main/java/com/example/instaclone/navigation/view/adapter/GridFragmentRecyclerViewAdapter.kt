@@ -1,6 +1,5 @@
 package com.example.instaclone.navigation.view.adapter
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,20 +14,15 @@ import com.example.instaclone.navigation.view.UserFragment
 import com.example.instaclone.navigation.model.ContentDTO
 import com.example.instaclone.navigation.util.Constants.Companion.DESTINATION_UID
 
-class GridFragmentRecyclerViewAdapter(context: Context) :
+class GridFragmentRecyclerViewAdapter :
     RecyclerView.Adapter<GridFragmentRecyclerViewAdapter.CustomViewHolder>() {
     var contentDTOs = ArrayList<ContentDTO>()
-    var context: Context
-
-    init {
-        this.context = context
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         Log.d("GridRecyclerViewAdapter", "onCreateViewHolder()")
-        val width = context.resources.displayMetrics.widthPixels / 3 //폭의 3분의 1 값
         val binding =
             ItemGridBinding.inflate(LayoutInflater.from(parent.context), parent, false).apply {
+                val width = this.root.context.resources.displayMetrics.widthPixels / 3 //폭의 3분의 1 값
                 profileImage.layoutParams = ConstraintLayout.LayoutParams(width, width)
                 lifecycleOwner = root.context as LifecycleOwner
             }
@@ -50,19 +44,21 @@ class GridFragmentRecyclerViewAdapter(context: Context) :
         fun bind() {
             Log.d("GridRecyclerViewAdapter", "bind position - $adapterPosition")
             val position = adapterPosition
-            binding.imageUrl = contentDTOs[position].imageUrl
+            binding.apply {
+                imageUrl = contentDTOs[position].imageUrl
 
-            binding.root.setOnClickListener {
-                val fragment = UserFragment()
-                val bundle = Bundle()
+                root.setOnClickListener {
+                    val fragment = UserFragment()
+                    Bundle().apply {
+                        putString(DESTINATION_UID, contentDTOs[position].uid)
+                        putString("userId", contentDTOs[position].userId)
+                        fragment.arguments = this
+                    }
 
-                bundle.putString(DESTINATION_UID, contentDTOs[position].uid)
-                bundle.putString("userId", contentDTOs[position].userId)
-
-                fragment.arguments = bundle
-                (context as FragmentActivity).supportFragmentManager.beginTransaction()
-                    .replace(R.id.main_content, fragment)
-                    .commit()
+                    (root.context as FragmentActivity).supportFragmentManager.beginTransaction()
+                        .replace(R.id.main_content, fragment)
+                        .commit()
+                }
             }
         }
     }

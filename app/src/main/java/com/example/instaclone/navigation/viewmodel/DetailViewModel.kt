@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import com.example.instaclone.navigation.model.ContentDTO
 import com.example.instaclone.navigation.model.FollowDTO
 import com.example.instaclone.navigation.util.Constants
+import com.example.instaclone.navigation.util.Constants.Companion.firebaseAuth
+import com.example.instaclone.navigation.util.Constants.Companion.firebaseFirestore
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,9 +28,8 @@ class DetailViewModel
 
 
     fun getContentList() {
-        val uid = Constants.firebaseAuth.currentUser!!.uid
-        Constants.firebaseFirestore.collection("users")
-            .document(uid)
+        firebaseFirestore.collection("users")
+            .document(firebaseAuth.currentUser!!.uid)
             .get()
             .addOnCompleteListener {
                 if (it.isSuccessful) {

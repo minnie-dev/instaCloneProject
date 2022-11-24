@@ -8,7 +8,7 @@ import com.example.instaclone.navigation.model.ContentDTO
 import com.example.instaclone.navigation.util.Constants.Companion.firebaseFirestore
 
 
-class CommentRecyclerviewAdapter() :
+class CommentRecyclerviewAdapter :
     RecyclerView.Adapter<CommentRecyclerviewAdapter.CustomViewHolder>() {
     private var comments: ArrayList<ContentDTO.Comment> = arrayListOf()
 
@@ -24,8 +24,10 @@ class CommentRecyclerviewAdapter() :
         fun bind() {
             val position = adapterPosition
 
-            binding.commentviewitemTextviewComment.text = comments[position].comment
-            binding.commentviewitemTextviewProfile.text = comments[position].userId
+            binding.apply {
+                commentviewitemTextviewComment.text = comments[position].comment
+                commentviewitemTextviewProfile.text = comments[position].userId
+            }
 
             firebaseFirestore
                 .collection("profileImages")

@@ -34,7 +34,7 @@ class GridFragment : Fragment() {
         gridVM.contentDTOs.observe(viewLifecycleOwner) {
             Log.d("GridFragment", "observeGridViewModel()");
             binding.gridfragmentRecyclerview.adapter =
-                GridFragmentRecyclerViewAdapter(requireActivity())
+                GridFragmentRecyclerViewAdapter()
             binding.gridfragmentRecyclerview.layoutManager = GridLayoutManager(requireActivity(), 3)
             contentDTOsList = it
             binding.invalidateAll()

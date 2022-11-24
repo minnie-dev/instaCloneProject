@@ -105,15 +105,14 @@ class AddPhotoActivity : AppCompatActivity() {
         storageRef?.putFile(photoUri!!)?.continueWithTask { task: Task<UploadTask.TaskSnapshot> ->
             return@continueWithTask storageRef.downloadUrl
         }?.addOnSuccessListener { uri ->
-            var contentDTO = ContentDTO()
-            contentDTO.imageUrl = uri.toString()
-
-            contentDTO.uid = firebaseAuth.currentUser!!.uid
-            contentDTO.userId = firebaseAuth.currentUser!!.email!!
-            contentDTO.explain = binding.addphotoEditExplain.text.toString()
-            contentDTO.timestamp = System.currentTimeMillis()
-
-            firebaseFirestore.collection("images").document().set(contentDTO) // 데이터베이스에 입력
+            ContentDTO().apply {
+                imageUrl = uri.toString()
+                uid = firebaseAuth.currentUser!!.uid
+                userId = firebaseAuth.currentUser!!.email!!
+                explain = binding.addphotoEditExplain.text.toString()
+                this.timestamp = System.currentTimeMillis()
+                firebaseFirestore.collection("images").document().set(this) // 데이터베이스에 입력
+            }
             setResult(Activity.RESULT_OK)
             finish()
             //파일 업로드가 성공한 걸 알 수 있도록 토스트 팝업

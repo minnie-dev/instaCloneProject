@@ -15,16 +15,15 @@ import com.example.instaclone.navigation.util.Constants
 import com.example.instaclone.navigation.view.adapter.AlarmRecyclerviewAdapter
 import com.example.instaclone.navigation.view.adapter.DetailViewRecyclerViewAdapter
 import com.example.instaclone.navigation.view.adapter.GridFragmentRecyclerViewAdapter
+import com.example.instaclone.navigation.view.adapter.UserFragmentRecyclerViewAdapter
 
 
 @SuppressLint("NotifyDataSetChanged")
 @BindingAdapter("bindAlarmData")
 fun bindAlarmList(recyclerView: RecyclerView, alarmList: ArrayList<AlarmDTO>?) {
-    Log.d("AlarmFragment", "bindAlarmList()")
-
     if (recyclerView.adapter == null) {
         recyclerView.apply {
-            adapter = AlarmRecyclerviewAdapter(context)
+            adapter = AlarmRecyclerviewAdapter()
         }
     }
 
@@ -43,11 +42,10 @@ fun bindContentList(
     dtoList: ArrayList<ContentDTO>?,
     uidList: ArrayList<String>?
 ) {
-    Log.d("DetailViewFragment", "bindContentList()")
 
     if (recyclerView.adapter == null) {
         recyclerView.apply {
-            adapter = DetailViewRecyclerViewAdapter(context)
+            adapter = DetailViewRecyclerViewAdapter()
         }
     }
     if (dtoList != null && uidList != null) {
@@ -62,23 +60,40 @@ fun bindContentList(
 @SuppressLint("NotifyDataSetChanged")
 @BindingAdapter("bindData")
 fun bindingData(recyclerView: RecyclerView, contentList: ArrayList<ContentDTO>?) {
-    Log.d("GridFragment", "bindingData()");
-
     if (recyclerView.adapter == null) {
         recyclerView.apply {
-            adapter = GridFragmentRecyclerViewAdapter(context)
+            adapter = GridFragmentRecyclerViewAdapter()
             layoutManager = GridLayoutManager(context, 3)
         }
     }
     if (contentList != null) {
-        (recyclerView.adapter as GridFragmentRecyclerViewAdapter).contentDTOs = contentList
-        (recyclerView.adapter as GridFragmentRecyclerViewAdapter).notifyDataSetChanged()
+        (recyclerView.adapter as GridFragmentRecyclerViewAdapter).apply {
+            contentDTOs = contentList
+            notifyDataSetChanged()
+        }
+    }
+}
+
+@SuppressLint("NotifyDataSetChanged")
+@BindingAdapter("bindUserContentList")
+fun bindUserContentList(recyclerView: RecyclerView, contentList: ArrayList<ContentDTO>?){
+    if(recyclerView.adapter == null){
+        recyclerView.apply {
+            adapter = UserFragmentRecyclerViewAdapter()
+            layoutManager = GridLayoutManager(context, 3)
+        }
+
+        if(contentList != null){
+            (recyclerView.adapter as UserFragmentRecyclerViewAdapter).apply {
+                contentDTOs = contentList
+                notifyDataSetChanged()
+            }
+        }
     }
 }
 
 @BindingAdapter(value = ["setImageUrl", "setGlideType"], requireAll = false)
 fun setImageByGlide(view: ImageView, url: String?, type: String) {
-    Log.d("BindingAdapter", " 확인 url - $url , type - $type")
     when (type) {
         Constants.GLIDE_CENTER -> {
             Glide.with(view.context)
