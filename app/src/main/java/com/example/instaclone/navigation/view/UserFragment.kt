@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
@@ -67,14 +68,14 @@ class UserFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     @RequiresApi(Build.VERSION_CODES.Q)
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentUserBinding.inflate(inflater, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_user, container, false)
         fireStore = FirebaseFirestore.getInstance()
         currentUserUid = firebaseAuth.currentUser!!.uid
+
+        binding.vm = userVM
+        observeUserViewModel()
+
         if (arguments != null) {
             uid = arguments?.getString(DESTINATION_UID)
             binding.apply {
@@ -90,25 +91,22 @@ class UserFragment : Fragment() {
                 } else {
                     //OtherUserPage
                     followChk = activity?.resources?.getString(R.string.follow)
-                    (activity as MainActivity).apply {
-                        binding.toolbarUsername.text = arguments?.getString("userId")
-                        binding.toolbarBtnBack.setOnClickListener {  // 뒤로가기 이벤트
-                            binding.bottomNavigation.selectedItemId = R.id.action_home
+                    (activity as MainActivity).binding.apply {
+                        toolbarUsername.text = arguments?.getString("userId")
+                        toolbarBtnBack.setOnClickListener {  // 뒤로가기 이벤트
+                            bottomNavigation.selectedItemId = R.id.action_home
                         }
-                        binding.toolbarTitleImage.visibility = View.GONE
-                        binding.toolbarUsername.visibility = View.VISIBLE
-                        binding.toolbarBtnBack.visibility = View.VISIBLE
+                        toolbarTitleImage.visibility = View.GONE
+                        toolbarUsername.visibility = View.VISIBLE
+                        toolbarBtnBack.visibility = View.VISIBLE
                     } //누구의 유저 페이지인지 텍스트 백버튼 활성화
                     accountBtnFollowSignout.setOnClickListener {
                         requestFollow()
                     }
                 }
             }
+            userVM.getContentList(uid!!)
         }
-
-        binding.vm = userVM
-        userVM.getContentList(uid!!)
-        observeUserViewModel()
 
         binding.accountIvProfile.setOnClickListener {
             if (ContextCompat.checkSelfPermission(
@@ -142,6 +140,7 @@ class UserFragment : Fragment() {
             binding.accountRecyclerview.adapter =
                 UserFragmentRecyclerViewAdapter()
             binding.accountRecyclerview.layoutManager = GridLayoutManager(requireActivity(), 3)
+            binding.invalidateAll()
         }
     }
 

@@ -10,6 +10,10 @@ import com.example.instaclone.navigation.model.ContentDTO
 class UserFragmentRecyclerViewAdapter : RecyclerView.Adapter<UserFragmentRecyclerViewAdapter.CustomViewHolder>() {
     var contentDTOs: ArrayList<ContentDTO> = arrayListOf()
 
+    init{
+
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val binding =
             ItemUserBinding.inflate(LayoutInflater.from(parent.context), parent, false).apply {
